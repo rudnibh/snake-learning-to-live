@@ -2,7 +2,7 @@
 
 This project implements a reinforcement learning agent that learns to play the classic Snake game. The agent is trained using deep Q-learning and interacts with a custom Snake environment.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f92215b7-b7e4-421d-a8af-b9b9a3fc3f58" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/35f8148d-55f4-4fae-8344-260ebd363e5d" />
 
 
 ## Features
