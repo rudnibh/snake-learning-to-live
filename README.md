@@ -24,7 +24,7 @@ This project implements a reinforcement learning agent that learns to play the c
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/rudnibh/snake-learning-to-live
    cd snake-learning-to-live
    ```
 2. (Optional) Create and activate a virtual environment:

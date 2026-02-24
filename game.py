@@ -5,7 +5,7 @@ from collections import namedtuple
 import numpy as np
 
 pygame.init()
-font = pygame.font.SysFont('arial', 25)
+font = pygame.font.SysFont('ubuntu, arial, sans-serif', 24, bold=True)
 
 class Direction(Enum):
     RIGHT = 1
@@ -13,13 +13,18 @@ class Direction(Enum):
     UP = 3
     DOWN = 4
 
-Point = namedtuple('Point', 'x, y')
+Point = namedtuple('point', 'x, y')
 
-WHITE = (255, 255, 255)
-RED = (200,0,0)
-BLUE1 = (0, 0, 255)
-BLUE2 = (0, 100, 255)
-BLACK = (0,0,0)
+BG_COLOR = (30, 30, 46)       
+GRID_COLOR = (49, 50, 68)     
+SNAKE_HEAD = (166, 227, 161)  
+SNAKE_BODY = (148, 226, 213)  
+SNAKE_INNER = (116, 199, 236) 
+FOOD_COLOR = (243, 139, 168)  
+TEXT_COLOR = (205, 214, 244)  
+EYE_COLOR  = (24, 24, 37)     
+SCORE_BG   = (69, 71, 90)     
+LEAF_COLOR = (166, 227, 161)  
 
 BLOCK_SIZE = 20
 SPEED = 40
@@ -30,7 +35,7 @@ class SnakeAI:
         self.w = w
         self.h = h
         self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('Snake')
+        pygame.display.set_caption('snake: learning to live')
         self.clock = pygame.time.Clock()
         self.reset()
 
@@ -96,16 +101,62 @@ class SnakeAI:
 
 
     def _update_ui(self):
-        self.display.fill(BLACK)
+        self.display.fill(BG_COLOR)
 
-        for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
+        for x in range(0, self.w, BLOCK_SIZE):
+            pygame.draw.line(self.display, GRID_COLOR, (x, 0), (x, self.h))
+        for y in range(0, self.h, BLOCK_SIZE):
+            pygame.draw.line(self.display, GRID_COLOR, (0, y), (self.w, y))
 
-        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
+        for i, pt in enumerate(self.snake):
+            is_head = (i == 0)
+            color = SNAKE_HEAD if is_head else SNAKE_BODY
+            
+            rect = pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE)
+            pygame.draw.rect(self.display, color, rect, border_radius=6)
+            
+            if not is_head:
+                inner_rect = pygame.Rect(pt.x + BLOCK_SIZE//4, pt.y + BLOCK_SIZE//4, BLOCK_SIZE//2, BLOCK_SIZE//2)
+                pygame.draw.rect(self.display, SNAKE_INNER, inner_rect, border_radius=4)
+                
+            if is_head:
+                eye_radius = max(2, BLOCK_SIZE // 10)
+                offset1 = BLOCK_SIZE // 3
+                offset2 = 2 * (BLOCK_SIZE // 3)
+                near = BLOCK_SIZE // 4
+                far = 3 * (BLOCK_SIZE // 4)
+                
+                if self.direction == Direction.RIGHT:
+                    eye1 = (pt.x + far, pt.y + offset1)
+                    eye2 = (pt.x + far, pt.y + offset2)
+                elif self.direction == Direction.LEFT:
+                    eye1 = (pt.x + near, pt.y + offset1)
+                    eye2 = (pt.x + near, pt.y + offset2)
+                elif self.direction == Direction.UP:
+                    eye1 = (pt.x + offset1, pt.y + near)
+                    eye2 = (pt.x + offset2, pt.y + near)
+                else: # DOWN
+                    eye1 = (pt.x + offset1, pt.y + far)
+                    eye2 = (pt.x + offset2, pt.y + far)
+                
+                pygame.draw.circle(self.display, EYE_COLOR, eye1, eye_radius)
+                pygame.draw.circle(self.display, EYE_COLOR, eye2, eye_radius)
 
-        text = font.render("score: " + str(self.score), True, WHITE)
-        self.display.blit(text, [0, 0])
+        center_x = self.food.x + BLOCK_SIZE // 2
+        center_y = self.food.y + BLOCK_SIZE // 2
+        radius = BLOCK_SIZE // 2 - 2
+        pygame.draw.circle(self.display, FOOD_COLOR, (center_x, center_y), radius)
+        
+        leaf_rect = pygame.Rect(center_x, center_y - radius - 2, 6, 8)
+        pygame.draw.ellipse(self.display, LEAF_COLOR, leaf_rect)
+
+        text = font.render(f" score: {self.score} ", True, TEXT_COLOR)
+        text_rect = text.get_rect(topleft=(10, 10))
+        
+        bg_rect = text_rect.inflate(12, 8)
+        pygame.draw.rect(self.display, SCORE_BG, bg_rect, border_radius=10)
+        self.display.blit(text, text_rect)
+        
         pygame.display.flip()
 
 

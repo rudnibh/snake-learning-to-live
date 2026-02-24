@@ -101,7 +101,7 @@ def train():
             if score > record:
                 record = score
                 agent.model.save()
-            print('game', agent.n_games, 'score', score, 'record:', record)
+            print(f'game: {agent.n_games:4} | score: {score:3} | record: {record:3}')
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
